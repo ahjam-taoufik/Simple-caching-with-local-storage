@@ -1,36 +1,22 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-
-const getSkaters = async (setSkaters) => {
-  const url = 'https://thps.now.sh/api/skaters'
-
-  const cachedSkaters = JSON.parse(localStorage.getItem(url)) || null
-
-  if (cachedSkaters) {
-    setSkaters(cachedSkaters)
-    console.log('using cached skaters')
-  }
-
-  const { data } = await axios.get(url)
-  localStorage.setItem(url, JSON.stringify(data))
-  setSkaters(data)
-  console.log('using API skaters')
-}
+import React from 'react';
+import useRequest from './hooks/useRequest';
 
 const renderSkater = ({ name, stance }) => (
   <div key={name}>
-    <p>{name} - {stance}</p>
+    <p>
+      {name} - {stance}
+    </p>
   </div>
-)
+);
+
+const url = 'https://thps.now.sh/api/skaters';
 
 const Skaters = () => {
-  const [skaters, setSkaters] = useState([])
+  const { data: skaters, loading } = useRequest(url);
 
-  useEffect(() => {
-    getSkaters(setSkaters)
-  }, [])
+  if (loading) return <p>Loading...</p>;
 
-  return skaters.length > 0 ? skaters.map(renderSkater) : <p>Loading...</p>
-}
+  return skaters.map(renderSkater);
+};
 
 export default Skaters;
